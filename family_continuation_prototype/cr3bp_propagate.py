@@ -44,4 +44,20 @@ def cr3bp_ode(t, X, mu, with_stm):
         dX = np.hstack([dX, phidot.reshape(-1)])
     
     return dX
+
+
+
+# EVENT FUNCTIONS
+# Event function to be triggered when trajectory impacts surface of secondary body
+def event_impact_secondary(t, X, mu, R_sec):
+    x = X[0]
+    y = X[1]
+    z = X[2]
+    
+    r_2 = np.sqrt(y**2 + z**2 + (x - 1 + mu)**2)
+    return r_2 - R_sec
+
+# Event function to be triggered when specified state = 0
+def event_state_crossing(t, X, state_ind):
+    return X[state_ind]
     

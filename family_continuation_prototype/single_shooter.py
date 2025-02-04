@@ -6,6 +6,7 @@
 import numpy as np
 from cr3bp_propagate import propagate
 from cr3bp_functions import add_stm_i, state_derivs_cr3bp
+from copy import deepcopy
 
 """
 # Main differential corrector function
@@ -33,7 +34,7 @@ DF --------------- derivative of free variable vector with respect to constraint
     
 
 def correct_ics(X_guess, mu, t_guess, free_vars, constraint_vars, N_max = 50, 
-                corr_tol = 1e-12, half_period = 1, use_xz_symmetry = 1, palc_continuation = 0, palc_args = None, output_DF = 0):
+                corr_tol = 1e-12, palc_continuation = 0, palc_args = None, output_DF = 0):
     
     
         
@@ -50,42 +51,15 @@ def correct_ics(X_guess, mu, t_guess, free_vars, constraint_vars, N_max = 50,
     X_constraints_desired = X_guess[constraints_index]
     
     
-    # Logic if using poincare section or half-period constraints
-    if use_xz_symmetry == 1:
-        
-        event_x_crossing = lambda t, X: event_state_crossing(t, X, 1) 
-        if half_period == 0:
-            t_guess *= 1.25 # Increase propagation time slightly to ensure that orbit will cross x-z plane and event is triggered
-            event_x_crossing.direction = np.sign(X_guess[4])
-        else:
-            event_x_crossing.direction = -np.sign(X_guess[4])                  
-    else:
-        event_x_crossing = None
-    
         
     
-    # Propagate initial conditions and STM to t_guess
-    y_prop_stm = propagate(add_stm_i(X_guess), mu, t_guess, with_stm = 1, events_fun = event_x_crossing)
+    # Propagate initial conditions and STM to t_guess       
+    y_prop_stm = propagate(add_stm_i(X_guess), mu, t_guess, with_stm = 1)
     
-    # If using poincare sections, extract state and STM at event trigger
-    if use_xz_symmetry == 1:
-        if len(y_prop_stm.t_events[0]) > 1:
-            period_guess = y_prop_stm.t_events[0][1]
-            
-            X_f_guess = y_prop_stm.y_events[0][1][:6]
-            stm_f = y_prop_stm.y_events[0][1][6:].reshape((6,6))
-        else:
-            period_guess = y_prop_stm.t_events[0][0]
-            X_f_guess = y_prop_stm.y_events[0][0][:6]
-            stm_f = y_prop_stm.y_events[0][0][6:].reshape((6,6))
-            
-            if half_period == 1:
-                period_guess *= 2
-                
-    else: # Otherwise extract state and STM from final time
-        X_f_guess = y_prop_stm.y[:6,-1]
-        stm_f = y_prop_stm.y[6:,-1].reshape((6,6))
-        period_guess = y_prop_stm.t[-1]
+    # Extract state and STM from final time
+    X_f_guess = y_prop_stm.y[:6,-1]
+    stm_f = y_prop_stm.y[6:,-1].reshape((6,6))
+    period_guess = y_prop_stm.t[-1]
         
         
     # Extract pseudo arc-length continuation parameters if using PALC
@@ -107,6 +81,9 @@ def correct_ics(X_guess, mu, t_guess, free_vars, constraint_vars, N_max = 50,
     stm_col_index = free_vars_index[free_vars_index < 6]
     stm_row_index = constraints_index[constraints_index < 6]
     
+    # Initialize constraints gradient matrix
+    DF = np.zeros((n_constraint, n_free))
+    
     # Start correction count
     N_count = 0
 
@@ -116,7 +93,7 @@ def correct_ics(X_guess, mu, t_guess, free_vars, constraint_vars, N_max = 50,
         #print(X_diff)
 
         # Compute first order correction with Newton's method
-        DF = np.zeros((n_constraint, n_free))
+        
         stm_temp = stm_f[stm_row_index,:]
         DF[:n_constraint, :n_free_in_stm] = stm_temp[:,stm_col_index]
         
@@ -138,12 +115,16 @@ def correct_ics(X_guess, mu, t_guess, free_vars, constraint_vars, N_max = 50,
                 dX0_update = np.linalg.inv(DF)@dXf_desired
             elif n_free > n_constraint:
                 dX0_update = np.linalg.pinv(DF)@dXf_desired
+            else:
+                dX0_update = np.linalg.lstsq(DF, dXf_desired)[0]
                 
         elif palc_continuation == 1:
             if np.shape(DG[0]) == np.shape(DG[1]):
                 dX0_update = np.linalg.inv(DG)@g_vec
-            else:
+            elif np.shape(DG[0]) > np.shape(DG[1]):
                 dX0_update = np.linalg.pinv(DG)@g_vec
+            else:
+                dX0_update = np.linalg.lstsq(DG, g_vec)[0]
                 
                 
         #print(dX0_update)
@@ -151,8 +132,7 @@ def correct_ics(X_guess, mu, t_guess, free_vars, constraint_vars, N_max = 50,
         # Apply update       
         if "t" in free_vars:
             dX0_update_apply = dX0_update[:-1]
-            if use_xz_symmetry == 0:
-                t_guess += -dX0_update[-1]
+            t_guess += -dX0_update[-1]
         else:
             dX0_update_apply = dX0_update
         
@@ -161,33 +141,20 @@ def correct_ics(X_guess, mu, t_guess, free_vars, constraint_vars, N_max = 50,
         
         
         # Propagate updated guess and STM to new t_f
-        y_prop_stm = propagate(add_stm_i(X_guess), mu, t_guess, with_stm = 1, events_fun = event_x_crossing)
+        y_prop_stm = propagate(add_stm_i(X_guess), mu, t_guess, with_stm = 1)
         
-        # If using poincare sections, extract state and STM at event trigger
-        if use_xz_symmetry == 1:
-            if len(y_prop_stm.t_events[0]) > 1:
-                period_guess = y_prop_stm.t_events[0][1]
-                    
-                X_f_guess = y_prop_stm.y_events[0][1][:6]
-                stm_f = y_prop_stm.y_events[0][1][6:].reshape((6,6))
-            else:
-                period_guess = y_prop_stm.t_events[0][0]
-                    
-                X_f_guess = y_prop_stm.y_events[0][0][:6]
-                stm_f = y_prop_stm.y_events[0][0][6:].reshape((6,6))
-                
-            if half_period == 1:
-                period_guess *= 2
-                
-        else: # Propagate state and STM to final time
-            X_f_guess = y_prop_stm.y[:6,-1]
-            stm_f = y_prop_stm.y[6:,-1].reshape((6,6))
-            period_guess = y_prop_stm.t[-1]
+        # Propagate state and STM to final time
+        X_f_guess = y_prop_stm.y[:6,-1]
+        stm_f = y_prop_stm.y[6:,-1].reshape((6,6))
+        period_guess = y_prop_stm.t[-1]
+        
             
         # Compute dXf for updated guess  
-        dXf_desired = X_f_guess[constraints_index] - X_constraints_desired
+        #X_constraints_desired = deepcopy(X_guess[constraints_index])
+        dXf_desired = X_f_guess[constraints_index] - X_guess[constraints_index]#X_constraints_desired
+        #print(dXf_desired)
         X_diff = np.linalg.norm(dXf_desired) # Will exit while loop if below tol
-        
+        #X_constraints_desired = deepcopy(X_guess[constraints_index])
         N_count += 1
     
         
@@ -196,6 +163,8 @@ def correct_ics(X_guess, mu, t_guess, free_vars, constraint_vars, N_max = 50,
         converged_flag = 0
     else:
         converged_flag = 1
+        
+      
     
     
     if palc_continuation == 0 and output_DF == 0:
@@ -205,12 +174,8 @@ def correct_ics(X_guess, mu, t_guess, free_vars, constraint_vars, N_max = 50,
 
 
 
-     
-     
     
-# Event function to be triggered when specified state = 0
-def event_state_crossing(t, X, state_ind):
-    return X[state_ind]
+
     
     
 # Map variable strings to specific integer values
