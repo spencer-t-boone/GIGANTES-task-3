@@ -23,7 +23,7 @@ R_enc = R_enc_km/r_enc
 
 # L1 halo orbit
 
-test = "butterfly NPC"
+test = "L1 halo NPC"
 
 
 if test == "L1 halo":
@@ -44,7 +44,8 @@ if test == "L1 halo":
                                                                      max_step = np.abs(step)*20, event_stop = event_impact_enceladus)
 
     if flag == 1:
-        plot_family(orbit_family_states, orbit_family_periods, mu, spacing = 100)
+        plot_family(orbit_family_states, orbit_family_periods, mu, spacing = 100, frame = 'sec-centric', 
+                    R_sec = R_enc_km, r_sec = r_enc)
         
 
 if test == "L1 halo NPC":
@@ -104,7 +105,8 @@ elif test == 'butterfly':
                                                                      event_stop = event_impact_enceladus)
     
     if flag == 1:
-        plot_family(orbit_family_states, orbit_family_periods, mu, spacing = 10)
+        plot_family(orbit_family_states, orbit_family_periods, mu, spacing = 10, frame = 'sec-centric', 
+                    R_sec = R_enc_km, r_sec = r_enc)
         
         
 elif test == 'butterfly NPC':
