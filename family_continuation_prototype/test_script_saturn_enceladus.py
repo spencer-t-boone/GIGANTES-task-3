@@ -1,13 +1,18 @@
 # Test script for generating families of periodic orbits
 
 import numpy as np
-from cr3bp_propagate import propagate
+from cr3bp_propagate import propagate, event_impact_secondary
 from single_shooter import correct_ics
 from cr3bp_functions import add_stm_i
 from continuation import continue_family_npc, continue_family_palc
 from cr3bp_plotting import plot_family
 
+
+# Saturn-Enceladus CR3BP constants
 mu = 1.9011497893288988e-7
+R_enc_km = 252.1
+r_enc = 238400
+R_enc = R_enc_km/r_enc
 
 
 # Tests: 
@@ -18,90 +23,104 @@ mu = 1.9011497893288988e-7
 
 # L1 halo orbit
 
-test = "butterfly"
+test = "butterfly NPC"
+
 
 if test == "L1 halo":
-
-    X_i = np.array([ 9.97234212e-01, -7.28454572e-26, -1.37102221e-03, -9.09779652e-17,
-           -5.67257640e-03,  5.23832922e-16])
-    t_f_guess = 3.05133468e+00
+    
+    X_i = np.array([ 9.96657814e-01, 0, -3.99088311e-05, 0, -3.84161723e-03, 0 ])
+    t_f_guess =  3.07299480e+00
+    
     
     free_vars = ["x", "z", "ydot", "t"]
     constraints = ["y", "xdot", "zdot"]
     
-    # y_int = propagate(X_i, mu, t_f_guess)
-
-    # y_int_stm = propagate(add_stm_i(X_i), mu, t_f_guess, with_stm = 1)
-    
     continuation_var = []
-    step = -0.001
+    step = -2e-5
+    event_impact_enceladus = lambda t, X: event_impact_secondary(t, X, mu, R_enc)
+    
     orbit_family_states, orbit_family_periods, flag = continue_family_palc(X_i, mu, t_f_guess, free_vars, 
-                                                                     constraints, step, N_orbits_max=1000, half_period = 0, use_xz_symmetry = 0)
+                                                                     constraints, step, N_orbits_max=2000, half_period = 1, 
+                                                                     max_step = np.abs(step)*20, event_stop = event_impact_enceladus)
 
     if flag == 1:
-        plot_family(orbit_family_states, orbit_family_periods, mu, spacing = 50)
+        plot_family(orbit_family_states, orbit_family_periods, mu, spacing = 100)
+        
+
+if test == "L1 halo NPC":
+    
+    X_i = np.array([ 9.96657814e-01, 0, -3.99088311e-05, 0, -3.84161723e-03, 0 ])
+    t_f_guess =  3.07299480e+00
+    
+    free_vars = ["z", "ydot", "t"]
+    constraints = ["y", "xdot", "zdot"]
+    
+    
+    continuation_var = ["x"]
+    step = 1e-6
+    event_impact_enceladus = lambda t, X: event_impact_secondary(t, X, mu, R_enc)
+    
+    orbit_family_states, orbit_family_periods, flag = continue_family_npc(X_i, mu, t_f_guess, continuation_var, free_vars, 
+                                                                     constraints, step, N_orbits_max=3300, half_period = 1,
+                                                                     event_stop = event_impact_enceladus)
+
+    if flag == 1:
+        plot_family(orbit_family_states, orbit_family_periods, mu, spacing = 5)
         
         
 
-elif test == "L2 halo":
-    X_i = np.array([ 1.00290351e+00, -7.49987773e-14, -1.21076489e-03,
-      1.95365532e-13,  5.27054580e-03, -8.69803361e-14])
-    t_f_guess = 3.07287146e+00
+elif test == "L2 halo":  
+    X_i = np.array([ 1.00446305e+00, 0,  2.59982886e-05, 0, -3.53884567e-03, 0])
+    t_f_guess = 3.08985431e+00
     
     free_vars = ["x", "z", "ydot", "t"]
     constraints = ["y", "xdot", "zdot"]
     
-    y_int = propagate(X_i, mu, t_f_guess)
-
-    y_int_stm = propagate(add_stm_i(X_i), mu, t_f_guess, with_stm = 1)
-    
     continuation_var = []
-    step = -0.001
+    step = -5e-4
+    event_impact_enceladus = lambda t, X: event_impact_secondary(t, X, mu, R_enc)
+    
     orbit_family_states, orbit_family_periods, flag = continue_family_palc(X_i, mu, t_f_guess, free_vars, 
-                                                                     constraints, step, N_orbits_max=1000, half_period = 0, use_xz_symmetry = 0)
+                                                                     constraints, step, N_orbits_max=2000, half_period = 1,
+                                                                     event_stop = event_impact_enceladus)
     
     if flag == 1:
-        plot_family(orbit_family_states, orbit_family_periods, mu, spacing = 50)
+        plot_family(orbit_family_states, orbit_family_periods, mu, spacing = 5)
         
         
 elif test == 'butterfly':
-    X_i = np.array([ 9.98431607e-01,  8.18082304e-21,  3.79041307e-03,  3.51117145e-16,
-           -3.43371947e-03, -6.09114193e-15])
+    X_i = np.array([ 9.98431607e-01,  0,  3.79041307e-03,  0, -3.43371947e-03,0])
     t_f_guess = 4.69397956e+00
     
     free_vars = ["x", "z", "ydot", "t"]
     constraints = ["y", "xdot", "zdot"]
     
-    y_int = propagate(X_i, mu, t_f_guess)
-
-    y_int_stm = propagate(add_stm_i(X_i), mu, t_f_guess, with_stm = 1)
-    
     continuation_var = []
     step = -0.01
+    event_impact_enceladus = lambda t, X: event_impact_secondary(t, X, mu, R_enc)
+    
     orbit_family_states, orbit_family_periods, flag = continue_family_palc(X_i, mu, t_f_guess, free_vars, 
-                                                                     constraints, step, N_orbits_max=150, half_period = 0, use_xz_symmetry = 0)
+                                                                     constraints, step, N_orbits_max=100, half_period = 1,
+                                                                     event_stop = event_impact_enceladus)
     
     if flag == 1:
         plot_family(orbit_family_states, orbit_family_periods, mu, spacing = 10)
         
         
 elif test == 'butterfly NPC':
-    X_i = np.array([ 9.98431607e-01,  8.18082304e-21,  3.79041307e-03,  3.51117145e-16,
-           -3.43371947e-03, -6.09114193e-15])
+    X_i = np.array([ 9.98431607e-01, 0, 3.79041307e-03, 0, -3.43371947e-03, 0])
     t_f_guess = 4.69397956e+00
     
     continuation_var = ["z"]
     free_vars = ["x", "ydot", "t"]
     constraints = ["y", "xdot", "zdot"]
     
-    y_int = propagate(X_i, mu, t_f_guess)
-
-    y_int_stm = propagate(add_stm_i(X_i), mu, t_f_guess, with_stm = 1)
+    step = 1e-5
+    event_impact_enceladus = lambda t, X: event_impact_secondary(t, X, mu, R_enc)
     
-    #continuation_var = []
-    step = 0.00001
     orbit_family_states, orbit_family_periods, flag = continue_family_npc(X_i, mu, t_f_guess, continuation_var, free_vars, 
-                                                                     constraints, step, N_orbits_max=80, half_period = 0, use_xz_symmetry = 0)
+                                                                     constraints, step, N_orbits_max=80, half_period = 1,
+                                                                     event_stop = event_impact_enceladus)
     
     if flag == 1:
         plot_family(orbit_family_states, orbit_family_periods, mu, spacing = 2)
