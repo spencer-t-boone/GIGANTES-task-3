@@ -17,13 +17,15 @@ R_enc = R_enc_km/r_enc
 
 # Tests: 
 # L1 halo orbits using pseudo arclength continuation
+# L1 halo orbits using natural parameter continuation
 # L2 halo orbits
 # Butterfly orbits using pseudo arclength continuation
 # Butterfly orbits using natural parameter continuation along z parameter
+# L1 Period-3 halo orbits using PALC
 
 # L1 halo orbit
 
-test = "L1 halo NPC"
+test = "L1 halo"
 
 
 if test == "L1 halo":
@@ -127,6 +129,24 @@ elif test == 'butterfly NPC':
     if flag == 1:
         plot_family(orbit_family_states, orbit_family_periods, mu, spacing = 2)
         
-        
+
+elif test == 'L1 p3-halo':
+    X_i = np.array([0.99562262, 0, 0.00344389, 0, 0.01031047, 0])
+    t_f_guess = 8.860077536892092
+
+    
+    free_vars = ["x", "z", "ydot", "t"]
+    constraints = ["y", "xdot", "zdot"]
+    
+    continuation_var = []
+    step = -0.002
+    event_impact_enceladus = lambda t, X: event_impact_secondary(t, X, mu, R_enc)
+    
+    orbit_family_states, orbit_family_periods, flag = continue_family_palc(X_i, mu, t_f_guess, free_vars, 
+                                                                     constraints, step, N_orbits_max=560, half_period = 1)
+    
+    if flag == 1:
+        plot_family(orbit_family_states, orbit_family_periods, mu, spacing = 40, frame = 'sec-centric', 
+                    R_sec = R_enc_km, r_sec = r_enc)        
 
 
