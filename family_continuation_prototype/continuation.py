@@ -214,13 +214,14 @@ def continue_family_palc(X_initial, mu, period_initial, free_vars, constraint_va
                 y_prop = propagate(X_cont_corrected, mu, period_cont_corrected, with_stm = 0, events_fun = event_stop)
                 
                 # Check if stop criterion has been met
-                if len(y_prop.t_events[0]) > 0:
-                    
-                    # If so, exit continuation loop and resize output arrays accordingly
-                    print('Stopping criterion has been met, ending continuation')
-                    exit_continuation = 1                    
-                    orbit_family_states = orbit_family_states[:i,:]
-                    orbit_family_periods = orbit_family_periods[:i]
+                if event_stop != None:
+                    if len(y_prop.t_events[0]) > 0:
+                        
+                        # If so, exit continuation loop and resize output arrays accordingly
+                        print('Stopping criterion has been met, ending continuation')
+                        exit_continuation = 1                    
+                        orbit_family_states = orbit_family_states[:i,:]
+                        orbit_family_periods = orbit_family_periods[:i]
                     
                 
         if cont_success_flag == 0:
