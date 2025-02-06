@@ -17,8 +17,12 @@ def continue_family_npc(X_initial, mu, period_initial, continuation_var, free_va
     
     # Convert variable along which to perform continuation to associated integer value
     continuation_var_index = map_vars_to_index(continuation_var)
+    if continuation_var_index < 6:
+        print('Continuting family along', continuation_var[0], 'parameter starting at ', continuation_var[0], '=', str(X_initial[continuation_var_index]))
+    elif continuation_var_index == 6: # continuing along period
+        print('Continuting family along', continuation_var[0], 'parameter starting at ', continuation_var[0], '=', str(period_initial))
+        
     
-    print('Continuting family along', continuation_var[0], 'parameter starting at ', continuation_var[0], '=', str(X_initial[continuation_var_index]))
     
     if half_period == 1:
         period_initial = period_initial/2
@@ -52,9 +56,26 @@ def continue_family_npc(X_initial, mu, period_initial, continuation_var, free_va
             
             # New initial guess, Move next guess by 'step' along the desired parameter
             X_cont_guess = copy.deepcopy(orbit_family_states[i-1,:])
-            X_cont_guess[continuation_var_index] += step 
-            print('continuing orbit ', i, ', ', continuation_var[0], '=', str(X_cont_guess[continuation_var_index]))
-            period_cont_guess = orbit_family_periods[i-1]
+            period_cont_guess = copy.deepcopy(orbit_family_periods[i-1])
+            
+            if continuation_var_index < 6:
+                X_cont_guess[continuation_var_index] += step
+                print('continuing orbit ', i, ', ', continuation_var[0], '=', str(X_cont_guess[continuation_var_index]))
+                            
+            elif continuation_var_index == 6:
+                
+                if half_period == 1:
+                    period_cont_guess *= 2
+                    
+                period_cont_guess += step
+                print('continuing orbit ', i, ', ', continuation_var[0], '=', str(period_cont_guess))
+                    
+                if half_period == 1:
+                    period_cont_guess = period_cont_guess/2
+                    
+                
+                
+            
             
             
             # Correct new initial guess
