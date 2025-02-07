@@ -42,7 +42,7 @@ def interpolate_orbit(mu, orbit_family_states, orbit_family_periods, target_var,
             period_guess = period_guess/2
         
         # Correct initial conditions with fixed target parameter
-        X_initial_corrected, period_corrected, flag = correct_ics(X_i_guess, mu, period_guess, free_vars,                                                                               constraint_vars)
+        X_initial_corrected, period_corrected, flag = correct_ics(X_i_guess, mu, period_guess, free_vars, constraint_vars)
         
         if half_period == 1:
             period_corrected *= 2
