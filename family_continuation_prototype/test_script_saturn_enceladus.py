@@ -7,6 +7,7 @@ from cr3bp_functions import add_stm_i
 from continuation import continue_family_npc, continue_family_palc
 from cr3bp_plotting import plot_family
 from family_interpolation import interpolate_orbit
+from bifurcation_functions import plot_broucke_diagram, detect_bifurcations_broucke
 
 
 # Saturn-Enceladus CR3BP constants
@@ -32,9 +33,10 @@ test_case_options = ["L1 halo",
                      "butterfly",
                      "butterfly NPC",
                      "butterfly NPC period",
-                     "L1 p3-halo"]
+                     "L1 p3-halo",
+                     "L2 lyapunov"]
 
-test = test_case_options[6]
+test = test_case_options[7]
 
 
 # -----------------------------------------------------------------------------
@@ -60,6 +62,18 @@ if test == "L1 halo":
     if flag == 1:
         plot_family(orbit_family_states, orbit_family_periods, mu, spacing = 100, frame = 'sec-centric', 
                     R_sec = R_enc_km, r_sec = r_enc)
+        
+        # Interpolate orbit with specific z_i value (30 km above surface of Enceladus at periapse)
+        target_var = ["z"]
+        free_vars = ["x", "ydot", "t"]
+        target_value = -(R_enc + 30)/r_enc # target x = 0.998
+        orbit_interp_state, orbit_interp_period, flag = interpolate_orbit(mu, orbit_family_states, orbit_family_periods,
+                                                                          target_var, target_value,
+                                                                          free_vars, constraints, half_period = 1)
+        
+
+        
+        
         
 # -----------------------------------------------------------------------------
 # L1 halo orbit test case using NPC
@@ -217,3 +231,46 @@ elif test == 'L1 p3-halo':
                     R_sec = R_enc_km, r_sec = r_enc)        
 
 
+# ---------------------------------------------------------------------------------------------------
+# L2 lyapunov orbit test case using PALC, detect halo orbit bifurcation and continue resulting family
+# ---------------------------------------------------------------------------------------------------
+elif test == "L2 lyapunov":  
+    X_i = np.array([ 1.00401614e+00, -3.12950469e-20,  7.58158917e-29,  2.24329841e-14,
+           -1.60598059e-04,  4.31816369e-28])
+    t_f_guess = 3.04165111e+00
+    
+    free_vars = ["x", "z", "ydot", "t"]
+    constraints = ["y", "xdot", "zdot"]
+    
+    continuation_var = []
+    step = 1e-4
+    event_impact_enceladus = lambda t, X: event_impact_secondary(t, X, mu, R_enc)
+    
+    orbit_family_states, orbit_family_periods, flag = continue_family_palc(X_i, mu, t_f_guess, free_vars, 
+                                                                     constraints, step, N_orbits_max=800, half_period = 1,
+                                                                     event_stop = event_impact_enceladus)
+    
+    if flag == 1:
+        plot_family(orbit_family_states, orbit_family_periods, mu, spacing = 5)
+        
+        # Plot Broucke diagram
+        fig_broucke = plot_broucke_diagram(orbit_family_states, orbit_family_periods, mu)
+        
+        # Detect bifurcations
+        bif_types = ['tangent']
+        bif_states, bif_periods, bif_cont_states, bif_cont_periods, bif_types = detect_bifurcations_broucke(orbit_family_states, orbit_family_periods, mu,
+                                                                                                            free_vars, constraints, bif_types = bif_types)
+
+    # Continue L2 halo orbit family from resulting tangent bifurcation
+    X_i = bif_cont_states[0]
+    t_f_guess = bif_cont_periods[0]
+    step = -5e-4
+    event_impact_enceladus = lambda t, X: event_impact_secondary(t, X, mu, R_enc)
+    
+    orbit_family_states, orbit_family_periods, flag = continue_family_palc(X_i, mu, t_f_guess, free_vars, 
+                                                                     constraints, step, N_orbits_max=2000, half_period = 1,
+                                                                     event_stop = event_impact_enceladus)
+    
+    if flag == 1:
+        plot_family(orbit_family_states, orbit_family_periods, mu, spacing = 50, frame = 'sec-centric', 
+                    R_sec = R_enc_km, r_sec = r_enc)

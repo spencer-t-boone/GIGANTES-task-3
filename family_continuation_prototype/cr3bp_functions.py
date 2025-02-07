@@ -86,6 +86,14 @@ def jacobi_constant_family(states, mu):
         jc_vec[i] = jacobi_constant(states[i,:], mu)
         
     return jc_vec[i]
+
+# Compute derivatives of Jacobi constant w.r.t. initial state
+def compute_dJC_dxi(self):
+    
+    # Compute d(JC)/d(x)
+    Ux_ic, Uy_ic, Uz_ic, _, _, _ = self.ui_partials_acc_cr3bp(self.ic)
+    dJC_dx = np.array([2 * Ux_ic, 2 * Uy_ic, 2 * Uz_ic, -2 * self.ic[3], -2 * self.ic[4], -2 * self.ic[5]])
+    return dJC_dx
         
     
  # Compute distances between state and primary/secondary bodies   

@@ -19,7 +19,6 @@ constraint_vars -- list of strings containing constraint variables for correctio
 N_max ------------ maximum correction iterations
 corr_tol --------- tolerance for correction procedure
 half_period ------ target conditions at 'half-period' (useful for symmetric orbits such as halo and Lyapunov)
-use_xz_symmetry -- use poincare map at y=0 as stopping point for propagation rather than the period guess (used only for NPC)
 palc_continuation  flag indicating that pseudo arc-length constraint should be added
 palc_args -------- list containing terms needed for pseudo arc-length conrinuation
 output_DF -------- flag indicating whether the DF matrix should be outputted
@@ -77,7 +76,7 @@ def correct_ics(X_guess, mu, t_guess, free_vars, constraint_vars, N_max = 50,
     X_diff = np.linalg.norm(dXf_desired)
         
     
-    # Indices of STM to be usd in targeter
+    # Indices of STM to be used in targeter
     stm_col_index = free_vars_index[free_vars_index < 6]
     stm_row_index = constraints_index[constraints_index < 6]
     
@@ -86,6 +85,14 @@ def correct_ics(X_guess, mu, t_guess, free_vars, constraint_vars, N_max = 50,
     
     # Start correction count
     N_count = 0
+    
+    # Compute DF before loop in case constraints are already satisfied
+    stm_temp = stm_f[stm_row_index,:]
+    DF[:n_constraint, :n_free_in_stm] = stm_temp[:,stm_col_index]
+    
+    # Logic if time is a free variable
+    if "t" in free_vars:
+        DF[:,-1] = state_derivs_cr3bp(X_f_guess, mu)[constraints_index]
 
     # Run correction
     while X_diff > corr_tol and N_count < N_max:
@@ -150,11 +157,9 @@ def correct_ics(X_guess, mu, t_guess, free_vars, constraint_vars, N_max = 50,
         
             
         # Compute dXf for updated guess  
-        #X_constraints_desired = deepcopy(X_guess[constraints_index])
-        dXf_desired = X_f_guess[constraints_index] - X_guess[constraints_index]#X_constraints_desired
-        #print(dXf_desired)
+        dXf_desired = X_f_guess[constraints_index] - X_guess[constraints_index]
         X_diff = np.linalg.norm(dXf_desired) # Will exit while loop if below tol
-        #X_constraints_desired = deepcopy(X_guess[constraints_index])
+        
         N_count += 1
     
         
