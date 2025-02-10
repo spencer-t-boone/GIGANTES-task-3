@@ -14,7 +14,7 @@ from single_shooter import map_vars_to_index
 
 # Use Broucke stability diagram to detect bifurcations in a family of periodic orbits
 def detect_bifurcations_broucke(orbit_family_states, orbit_family_periods, mu, free_vars, constraint_vars, 
-                                bif_types = ["tangent", "period doubling"], bif_dir_step = 1e-5, half_period = 1):
+                                bif_types = ["tangent", "period_doubling"], bif_dir_step = 1e-5, half_period = 1):
     
     
     # Map free variables to indices
@@ -59,13 +59,22 @@ def detect_bifurcations_broucke(orbit_family_states, orbit_family_periods, mu, f
             
         
     # Detect period-doubling bifurcations   
-    if "period doubling" in bif_types:
+    if "period_doubling" in bif_types:
         pd_bif_data = 2 + beta_vec - 2*alpha_vec
         pd_bif_fun = CubicSpline(ind_vec, pd_bif_data)
         pd_bif_points = pd_bif_fun.roots()
         bif_points = np.hstack([bif_points, pd_bif_points])
-        for i in range(tangent_bif_points.size):
-            bif_types_detected.append("period doubling")
+        for i in range(pd_bif_points.size):
+            bif_types_detected.append("period_doubling")
+            
+    # Detect period-tripling bifurcations   
+    if "period_tripling" in bif_types:
+        pd_bif_data = -1 + beta_vec - alpha_vec
+        pd_bif_fun = CubicSpline(ind_vec, pd_bif_data)
+        pd_bif_points = pd_bif_fun.roots()
+        bif_points = np.hstack([bif_points, pd_bif_points])
+        for i in range(pd_bif_points.size):
+            bif_types_detected.append("period_tripling")
         
     if bif_points.size == 0:
         print('No bifurcations detected')
@@ -92,6 +101,11 @@ def detect_bifurcations_broucke(orbit_family_states, orbit_family_periods, mu, f
             # Use half period to enforce constraints if orbit is symmetric along x-z plane
             if half_period == 1:
                 period_guess = period_guess/2
+                
+            if bif_types_detected[i] == "period_doubling":
+                period_guess *= 2
+            elif bif_types_detected[i] == "period_tripling":
+                period_guess *= 3
             
             # Correct initial conditions with fixed target parameter
             X_initial_corrected, period_corrected, flag, DF = correct_ics(X_i_guess, mu, period_guess, free_vars, constraint_vars, output_DF = 1)
@@ -106,13 +120,13 @@ def detect_bifurcations_broucke(orbit_family_states, orbit_family_periods, mu, f
                 # Compute bifurcation direction - corresponds to second smallest
                 # singular value of SVD, see Zimovan dissertation page 78
                 sigma, V = np.linalg.svd(DF)[1:]
-                bif_dir = V[-2,:]
+                bif_dir = V[-2,:]/np.linalg.norm(V[-2,:])
                 
                 bif_dir_mapped = np.zeros(7)
                 bif_dir_mapped[free_vars_index] = bif_dir
                 
-                X_next = deepcopy(X_initial_corrected)
-                X_next += bif_dir_mapped[:6]*bif_dir_step
+                
+                X_next = X_initial_corrected + bif_dir_mapped[:6]*bif_dir_step
                 period_next = period_corrected + bif_dir_mapped[6]*bif_dir_step
                 
                 bif_states_guess_list.append(X_next)
