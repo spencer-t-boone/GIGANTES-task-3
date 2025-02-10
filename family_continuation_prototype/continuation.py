@@ -149,6 +149,8 @@ def continue_family_palc(X_initial, mu, period_initial, free_vars, constraint_va
     # Correct initial conditions in case they are not initially periodic
     X_initial_corrected, period_initial_corrected, flag, DF = correct_ics(X_initial, mu, period_initial, free_vars, 
                                                                           constraint_vars, output_DF = 1)
+
+        
     
     
     if flag == 0:
