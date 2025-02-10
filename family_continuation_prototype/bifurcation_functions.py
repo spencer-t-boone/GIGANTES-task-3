@@ -67,6 +67,7 @@ def detect_bifurcations_broucke(orbit_family_states, orbit_family_periods, mu, f
         for i in range(pd_bif_points.size):
             bif_types_detected.append("period_doubling")
             
+            
     # Detect period-tripling bifurcations   
     if "period_tripling" in bif_types:
         pd_bif_data = -1 + beta_vec - alpha_vec
@@ -75,6 +76,7 @@ def detect_bifurcations_broucke(orbit_family_states, orbit_family_periods, mu, f
         bif_points = np.hstack([bif_points, pd_bif_points])
         for i in range(pd_bif_points.size):
             bif_types_detected.append("period_tripling")
+            
         
     if bif_points.size == 0:
         print('No bifurcations detected')

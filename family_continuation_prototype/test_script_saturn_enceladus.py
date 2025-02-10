@@ -36,7 +36,8 @@ test_case_options = ["L1 halo",
                      "butterfly NPC period",
                      "L1 p3-halo",
                      "L2 lyapunov",
-                     "L2 period doubling"]
+                     "L2 period doubling",
+                     "L2 period tripling"]
 
 test = test_case_options[8]
 
@@ -274,6 +275,7 @@ elif test == "L2 lyapunov":
                                                                      event_stop = event_impact_enceladus)
 
 
+
 # ---------------------------------------------------------------------------------------------------------------------
 # L2 period-doubling halo orbit test case using PALC, detect bifurcation from halo orbits and continue resulting family
 # ---------------------------------------------------------------------------------------------------------------------
@@ -318,6 +320,56 @@ elif test == 'L2 period doubling':
         
         if flag == 1:
             plot_family(orbit_family_states_1, orbit_family_periods_1, mu, spacing = 50, frame = 'sec-centric', 
+                        R_sec = R_enc_km, r_sec = r_enc)
+            
+
+# ---------------------------------------------------------------------------------------------------------------------
+# L2 period-tripling halo orbit test case using PALC, detect bifurcation from halo orbits and continue resulting family
+# Needs a denser computation of the L2 halo orbit family in order to properly detect the sensitive bifurcation
+# ---------------------------------------------------------------------------------------------------------------------
+elif test == 'L2 period tripling':
+
+    X_i = np.array([ 1.00398819,  0.        ,  0.00327934,  0.        , -0.00561346,
+            0.        ])
+    t_f_guess = 2.990128883855193
+    
+    free_vars = ["x", "z", "ydot", "t"]
+    constraints = ["y", "xdot", "zdot"]
+    
+    continuation_var = []
+    step = -2e-5
+    event_impact_enceladus = lambda t, X: event_impact_secondary(t, X, mu, R_enc)
+    
+    orbit_family_states, orbit_family_periods, flag = continue_family_palc(X_i, mu, t_f_guess, free_vars, 
+                                                                     constraints, step, N_orbits_max=2500, half_period = 1,
+                                                                     event_stop = event_impact_enceladus)
+    
+    
+    if flag == 1:
+        plot_family(orbit_family_states, orbit_family_periods, mu, spacing = 50, frame = 'sec-centric', 
+                    R_sec = R_enc_km, r_sec = r_enc)
+        
+        # Plot Broucke diagram
+        fig_broucke = plot_broucke_diagram(orbit_family_states, orbit_family_periods, mu)
+        
+        # Detect bifurcations
+        bif_types = ['period_tripling']
+        bif_states, bif_periods, bif_cont_states, bif_cont_periods, bif_types = detect_bifurcations_broucke(orbit_family_states, orbit_family_periods, mu,
+                                                                                                            free_vars, constraints, bif_types = bif_types, bif_dir_step = 1e-6,
+                                                                                                            half_period = 1)
+        
+        # Continue first period-doubling family
+        X_i = bif_cont_states[0]
+        t_f_guess = bif_cont_periods[0]
+        step = 2e-5
+        event_impact_enceladus = lambda t, X: event_impact_secondary(t, X, mu, R_enc)
+        
+        orbit_family_states_1, orbit_family_periods_1, flag = continue_family_palc(X_i, mu, t_f_guess, free_vars, 
+                                                                         constraints, step, N_orbits_max=2000, half_period = 1, max_step = step*5,
+                                                                         event_stop = event_impact_enceladus)
+        
+        if flag == 1:
+            plot_family(orbit_family_states_1, orbit_family_periods_1, mu, spacing = 100, frame = 'sec-centric', 
                         R_sec = R_enc_km, r_sec = r_enc)
         
         
