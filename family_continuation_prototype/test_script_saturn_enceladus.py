@@ -69,7 +69,7 @@ if test == "L1 halo":
         # Interpolate orbit with specific z_i value (30 km above surface of Enceladus at periapse)
         target_var = ["z"]
         free_vars = ["x", "ydot", "t"]
-        target_value = -(R_enc + 30)/r_enc # target x = 0.998
+        target_value = -(R_enc + 30/r_enc)
         orbit_interp_state, orbit_interp_period, flag = interpolate_orbit(mu, orbit_family_states, orbit_family_periods,
                                                                           target_var, target_value,
                                                                           free_vars, constraints, half_period = 1)
@@ -122,6 +122,19 @@ elif test == "L2 halo":
     
     if flag == 1:
         plot_family(orbit_family_states, orbit_family_periods, mu, spacing = 5)
+        
+        # Interpolate orbit with specific z_i value (30 km above surface of Enceladus at periapse)
+        orbit_peri_states = np.zeros(orbit_family_states.shape)
+        for i in range(orbit_family_states.shape[0]):
+            y_prop = propagate(orbit_family_states[i,:], mu, orbit_family_periods[i]/2)
+            orbit_peri_states[i,:] = y_prop.y[:6,-1]
+        
+        target_var = ["z"]
+        free_vars = ["x", "ydot", "t"]
+        target_value = -(R_enc + 30/r_enc)
+        orbit_interp_state, orbit_interp_period, flag = interpolate_orbit(mu, orbit_peri_states, orbit_family_periods,
+                                                                          target_var, target_value,
+                                                                          free_vars, constraints, half_period = 1)
         
  
 # -----------------------------------------------------------------------------
@@ -185,8 +198,9 @@ elif test == 'butterfly NPC':
     if flag == 1:
         plot_family(orbit_family_states, orbit_family_periods, mu, spacing = 10, frame = 'sec-centric', 
                     R_sec = R_enc_km, r_sec = r_enc)
-     
         
+         
+
 # -----------------------------------------------------------------------------
 # Butterfly orbit test case using NPC along period
 # -----------------------------------------------------------------------------        
@@ -358,7 +372,7 @@ elif test == 'L2 period tripling':
                                                                                                             free_vars, constraints, bif_types = bif_types, bif_dir_step = 1e-6,
                                                                                                             half_period = 1)
         
-        # Continue first period-doubling family
+        # Continue first period-tripling family
         X_i = bif_cont_states[0]
         t_f_guess = bif_cont_periods[0]
         step = 2e-5

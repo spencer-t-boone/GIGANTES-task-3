@@ -111,3 +111,5 @@ def add_stm_i(X):
     nX = np.size(X)
     phi0 = np.eye(nX)
     return np.hstack([X, phi0.reshape(-1)])
+
+
