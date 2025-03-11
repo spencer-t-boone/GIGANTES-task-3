@@ -1,0 +1,139 @@
+version: '3.0'
+spacetime:
+  system: BCRS
+ephemeris:
+- name: de432
+  files:
+  - /home/vboxuser/midas/de432.bsp
+- name: gm431
+  files:
+  - /home/vboxuser/midas/gm_431.tpc
+- name: sat441l
+  files:
+  - /home/vboxuser/midas/sat441l.bsp
+frames:
+- name: ephem1
+  type: Ephem
+  config:
+    source: de432
+- name: ephem2
+  type: Ephem
+  config:
+    source: sat441l
+- name: EMC
+  type: AxesOrient
+  config:
+    model: EMCJ2000
+- name: FlybyAxesTitan
+  type: AxesLocalOrbital
+  config:
+    center: Saturn
+    target: Titan
+    axes: Vel
+- name: FlybyAxesRhea
+  type: AxesLocalOrbital
+  config:
+    center: Saturn
+    target: Rhea
+    axes: Vel
+- name: FlybyAxesDione
+  type: AxesLocalOrbital
+  config:
+    center: Saturn
+    target: Dione
+    axes: CNT
+- name: FlybyAxesTethys
+  type: AxesLocalOrbital
+  config:
+    center: Saturn
+    target: Tethys
+    axes: Vel
+- name: FlybyAxesEnceladus
+  type: AxesLocalOrbital
+  config:
+    center: Saturn
+    target: Enceladus
+    axes: Vel
+- name: SEROT
+  type: AxesLocalOrbital
+  config:
+    center: Saturn
+    target: Enceladus
+    axes: Pos
+
+constants:
+  ephemeris:
+  - source: gm431
+  data:
+    g0: 9.81
+    TitanSOI: 195796 km
+    RheaSOI: 16616 km
+    DioneSOI: 8792 km
+    TethysSOI: 5457 km
+    EnceladusSOI: 2194 km
+
+bodies:
+  - name: Earth
+    point: Earth
+    axes: ICRF
+  - name: Sun
+    point: Sun
+  - name: SaturnBarycenter
+    point: SaturnBarycenter
+  - name: Saturn
+    point: Saturn
+  - name: Titan
+    point: Titan
+  - name: Rhea
+    point: Rhea
+  - name: Dione
+    point: Dione
+  - name: Tethys
+    point: Tethys
+  - name: Enceladus
+    point: Enceladus
+
+gravity:
+  - name: SaturnGravity
+    bodies:
+      - Sun
+      - center: Saturn
+        parent: Sun
+        barycenter: SaturnBarycenter
+      - center: Titan
+        parent: Saturn
+        barycenter: ''
+      - center: Rhea
+        parent: Saturn
+        barycenter: ''
+      - center: Dione
+        parent: Saturn
+        barycenter: ''
+      - center: Tethys
+        parent: Saturn
+        barycenter: ''
+      - center: Enceladus
+        parent: Saturn
+        barycenter: ''
+
+dynamics:
+  - name: SaturnSystem
+    type: SystemGravity
+    config:
+      model: SaturnGravity
+      switch: true
+
+spacecraft:
+  - name: SC
+    mass: 2800 kg
+    srp:
+      area: 40 m^2
+      cr: 0.0
+    thrusters:
+      - name: main
+        thrust: 1100 N
+        isp: 321 s
+        # Drag modelling surface properties
+    drag:
+      area: 40 m^2
+      cd: 0.0       # Ballistic coefficient
