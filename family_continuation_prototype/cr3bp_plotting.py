@@ -5,6 +5,7 @@ import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 from cr3bp_functions import jacobi_constant_family
 from matplotlib import colormaps
+from copy import deepcopy
 
 
 # Plot orbit
@@ -64,7 +65,11 @@ def plot_orbit_km(X_i, t, mu, R_sec, r_sec, fig = None, N_points = 1000, orbit_c
     
 
 # Plot a family of orbits
-def plot_family(states_family, periods_family, mu, fig = None, N_points = 1000, spacing = 1, frame = 'synodic', R_sec = 252.1, r_sec = 238400):
+def plot_family(states_family, periods_family, mu, fig = None, N_points = 1000, spacing = 1, frame = 'synodic', R_sec = 252.1, r_sec = 238400,
+                variable_mu = 0):
+    
+    if variable_mu == 1:
+        mu_vector = deepcopy(mu)
     
     num_orbits = int(len(periods_family)/spacing)
     
@@ -77,6 +82,9 @@ def plot_family(states_family, periods_family, mu, fig = None, N_points = 1000, 
         ax = fig.add_subplot(projection='3d')
         
     for i in range(0,len(periods_family),spacing):
+        if variable_mu == 1:
+            mu = mu_vector[i]
+            
         if frame == 'synodic':
             plot_orbit(states_family[i,:], periods_family[i], mu, fig, N_points, orbit_color = colormap(i/len(periods_family)) )
         elif frame == 'sec-centric':

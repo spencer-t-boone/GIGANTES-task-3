@@ -21,6 +21,10 @@ def continue_family_npc(X_initial, mu, period_initial, continuation_var, free_va
         print('Continuting family along', continuation_var[0], 'parameter starting at ', continuation_var[0], '=', str(X_initial[continuation_var_index]))
     elif continuation_var_index == 6: # continuing along period
         print('Continuting family along', continuation_var[0], 'parameter starting at ', continuation_var[0], '=', str(period_initial))
+    elif continuation_var_index == 8: # continuing along mu
+        mu_initial = copy.deepcopy(mu)
+        print('Continuting family along', continuation_var[0], 'parameter starting at ', continuation_var[0], '=', str(mu_initial))
+    
         
     
     
@@ -73,6 +77,10 @@ def continue_family_npc(X_initial, mu, period_initial, continuation_var, free_va
                 if half_period == 1:
                     period_cont_guess = period_cont_guess/2
                     
+            elif continuation_var_index == 8:
+                mu = mu/step
+                print('continuing orbit ', i, ', ', continuation_var[0], '=', str(mu))
+                    
                 
                 
             
@@ -108,13 +116,14 @@ def continue_family_npc(X_initial, mu, period_initial, continuation_var, free_va
                 y_prop = propagate(X_cont_corrected, mu, period_cont_corrected, with_stm = 0, events_fun = event_stop)
                 
                 # Check if stop criterion has been met
-                if len(y_prop.t_events[0]) > 0:
-                    
-                    # If so, exit continuation loop and resize output arrays accordingly
-                    print('Stopping criterion has been met, ending continuation')
-                    exit_continuation = 1                    
-                    orbit_family_states = orbit_family_states[:i,:]
-                    orbit_family_periods = orbit_family_periods[:i]
+                if event_stop != None:
+                    if len(y_prop.t_events[0]) > 0:
+                        
+                        # If so, exit continuation loop and resize output arrays accordingly
+                        print('Stopping criterion has been met, ending continuation')
+                        exit_continuation = 1                    
+                        orbit_family_states = orbit_family_states[:i,:]
+                        orbit_family_periods = orbit_family_periods[:i]
                 
         if cont_success_flag == 0:
             break
