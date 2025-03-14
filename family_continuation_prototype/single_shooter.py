@@ -185,7 +185,7 @@ def correct_ics(X_guess, mu, t_guess, free_vars, constraint_vars, N_max = 50,
     
 # Map variable strings to specific integer values
 def map_vars_to_index(vars_list = None):
-    variable_dict = {"x": 0, "y": 1, "z": 2, "xdot": 3, "ydot": 4, "zdot": 5, "t": 6, "jc": 7}
+    variable_dict = {"x": 0, "y": 1, "z": 2, "xdot": 3, "ydot": 4, "zdot": 5, "t": 6, "jc": 7, "mu": 8}
     vars_index = []
 
     if vars_list is not None:
