@@ -1,5 +1,4 @@
-# Function to perform preliminary stationkeeping analysis using a simple
-# apse-targeting stationkeeping strategy
+# Function to perform preliminary stationkeeping analysis using an apse-targeting stationkeeping strategy
 
 # %% Import modules
 import numpy as np
@@ -203,6 +202,7 @@ N_man = num_ref_points*N_rev
 # Loop over number of maneuvers
 for N in range(N_man):
      
+    # Add navigation error at desired frequency
     if np.mod(N, noise_freq) == 0:
         
         # Add random error
@@ -219,7 +219,6 @@ for N in range(N_man):
     cons = ({'type': 'ineq',
            'fun': compute_distance_from_ref_at_apse,
            'args': args_scipy
-           #'jac': compute_psi_minimize_derivs
            })
     
     bnds = ((-0.5, 0.5),(-0.5, 0.5),(-0.5, 0.5))
@@ -254,13 +253,14 @@ for N in range(N_man):
     t_vec = np.linspace(0, 2*tau, 5000)
     X_crossing_out_next = prop(env, t_vec, X_crossing_in_pert, events=[event_alt_crossing])
     
-    # Set nominal state to be final state of next revolution
+    # Extract state at next crossing, make sure not to stop propagation at current crossing
     for j in range(X_crossing_out_next.t_events[0].size):
 
         if X_crossing_out_next.t_events[0][j] > tau/30:
             X_crossing_out = copy.deepcopy(X_crossing_out_next.state_events[0][j])
             break
-        
+       
+    # Integrate and save full trajectory
     X_crossing_out_for_save = prop(env, np.linspace(0,X_crossing_out_next.t_events[0][j],500),
                                    X_crossing_in_pert)
     
@@ -275,6 +275,7 @@ for N in range(N_man):
         u_save_noisy = copy.deepcopy(u_rev_noisy)
     
     
+    # Update initial state for next stationkeeping maneuver
     X_crossing_in_pert = copy.deepcopy(X_crossing_out)
         
     
@@ -288,7 +289,7 @@ ax3.set_ylabel('y [km]')
 ax3.set_zlabel('z [km]')
 
 ax3.plot((X_traj_full[:,0] - (1-env.mu))*env.adim_l, X_traj_full[:,1]*env.adim_l, X_traj_full[:,2]*env.adim_l,
-          label = 'L1 NRHO stationkeeping', linewidth = 1.25)        
+          label = 'Trajectory', linewidth = 1.25)        
         
         
 
