@@ -117,7 +117,7 @@ def compute_delta_v(u, X, args):
 
     
 # Function to compute distance from reference at apse point
-def compute_distance_from_ref_at_apse(u, X_apo_in, args):
+def compute_distance_from_ref_at_apse(u, X_in, args):
     
     # Extract reference target
     X_target = args['X_ref']
@@ -125,20 +125,20 @@ def compute_distance_from_ref_at_apse(u, X_apo_in, args):
     target_range = args['target_range']
     
     # Apply maneuver
-    X_apo = copy.deepcopy(X_apo_in)
-    X_apo[3:] += u
+    X_i = copy.deepcopy(X_in)
+    X_i[3:] += u
     
-    prop_to_rp = prop(env, np.linspace(0,2.5*tau,100), X_apo, events=[event_apse])
+    prop_to_rp = prop(env, np.linspace(0,2.5*tau,100), X_i, events=[event_apse])
     
     if prop_to_rp.t_events[0].size >= 1:
-        X_peri = prop_to_rp.state_events[0][0]
+        X_p = prop_to_rp.state_events[0][0]
         
-        pos_diff = np.linalg.norm(X_target[:3] - X_peri[:3])
-        #print(pos_diff-target_range)
+        pos_diff = np.linalg.norm(X_target[:3] - X_p[:3])
+
         return -(pos_diff - target_range)
     
-    else:
-        return 1
+    else: # If no apse crossing is detected
+        return -1
     
     
 
@@ -152,8 +152,12 @@ t_vec = np.linspace(0, 2*tau, 5000)
 X_apo = copy.deepcopy(X_i)
 
 
+# Values to use for navigation model
+# Nominal or 'low' values
 nav_error_pos_low = (0.250/3)/env.adim_l
 nav_error_vel_low = ((0.01/3)/1e3)/env.adim_v
+
+# High navigation error values
 nav_error_pos_high = (0.750/3)/env.adim_l
 nav_error_vel_high = ((0.05/3)/1e3)/env.adim_v
 
@@ -163,10 +167,12 @@ sigma_nav_error_low = np.array([nav_error_pos_low, nav_error_pos_low, nav_error_
 sigma_nav_error_high = np.array([nav_error_pos_high, nav_error_pos_high, nav_error_pos_high,
                                 nav_error_vel_high, nav_error_vel_high, nav_error_vel_high])
 
+
+# Select error model to use
 error_model = 'nominal'
 if error_model == 'high':
     sigma_nav_error = sigma_nav_error_high
-    sigma_man_error = 0.02
+    sigma_man_error = 0.02 # Maneuver execution error
 elif error_model == 'nominal':
     sigma_nav_error = sigma_nav_error_low
     sigma_man_error = 0.007
@@ -176,8 +182,9 @@ elif error_model == 'none':
 
 np.random.seed(3)
 
-
-args = {'target_range' : 1.0 / env.adim_l}
+# Distance to target from reference
+target_range = 1 # km
+args = {'target_range' : target_range / env.adim_l}
 
 
 X_traj_full = None
