@@ -37,9 +37,10 @@ test_case_options = ["L1 halo",
                      "L1 p3-halo",
                      "L2 lyapunov",
                      "L2 period doubling",
-                     "L2 period tripling"]
+                     "L2 period tripling",
+                     "butterfly NPC mu"]
 
-test = test_case_options[8]
+test = test_case_options[10]
 
 
 # -----------------------------------------------------------------------------
@@ -385,5 +386,41 @@ elif test == 'L2 period tripling':
         if flag == 1:
             plot_family(orbit_family_states_1, orbit_family_periods_1, mu, spacing = 100, frame = 'sec-centric', 
                         R_sec = R_enc_km, r_sec = r_enc)
+            
+            
+            
+# -----------------------------------------------------------------------------
+# Compute Saturn-Enceladus butterfly orbit family by continuing along mu from 
+# Earth-Moon butterfly orbit family
+# ----------------------------------------------------------------------------- 
+elif test == 'butterfly NPC mu':
+    X_i = np.array([1.0669, 0, 0.1619, 0, -0.0189, 0]) # Initial conditions in Earth-moon system
+    t_f_guess = 3.2255
+    mu_i =  0.0121505856
+    
+    # Compute continuation step
+    target_mu = mu
+    num_step = 500
+    step = (mu_i/target_mu)**(1/num_step)
+    
+    mu_vector = np.zeros(num_step)
+    for i in range(num_step):
+        mu_vector[i] = mu_i/step**i
+
+    continuation_var = ["mu"]
+    free_vars = ["x", "z", "ydot", "t"]
+    constraints = [ "y", "xdot", "zdot"]
+    
+    
+    orbit_family_states, orbit_family_periods, flag = continue_family_npc(X_i, mu_i, t_f_guess, continuation_var, free_vars, 
+                                                                     constraints, step, N_orbits_max = num_step, half_period = 1)
+
+    if flag == 1:
+        plot_family(orbit_family_states, orbit_family_periods, mu_vector, spacing = 50, variable_mu = 1)
+        
+        
+            
+            
+            
         
         

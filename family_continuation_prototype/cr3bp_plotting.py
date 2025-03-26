@@ -73,8 +73,6 @@ def plot_family(states_family, periods_family, mu, fig = None, N_points = 1000, 
     
     num_orbits = int(len(periods_family)/spacing)
     
-    jc_vec = jacobi_constant_family(states_family, mu)
-    
     colormap = colormaps['plasma'].resampled(num_orbits)
     
     if fig is None:
