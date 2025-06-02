@@ -49,10 +49,12 @@ additional_test_case_options = ["L1 halo",
                      "butterfly NPC",
                      "L1 p3-halo",                    
                      "L2 period doubling",
-                     "L2 period tripling"]
+                     "L2 period tripling",
+                     "lyapunov to butterfly"]
 
 
-test = validation_case_options[0]
+test = validation_case_options[3]
+test = additional_test_case_options[6]
 
 
 # -----------------------------------------------------------------------------
@@ -527,7 +529,80 @@ elif test == 'L1 halo PALC earthmoon':
                     R_sec = R_moon, r_sec = 384400)
         
         
+# ---------------------------------------------------------------------------------------------------------------------
+# Continue L2 Lyapunov orbit family in Earth-Moon system, detect bifurcation with halo orbits, 
+# continue L2 halo orbit family, detect bifurcation with butterfly orbits (4th period-doubling), continue butterfly orbit family
+# ---------------------------------------------------------------------------------------------------------------------
+elif test == 'lyapunov to butterfly':
+    mu =  0.0121505856
+    R_moon = 1737.4
+    r_moon = 384400
+    
+    X_i = np.array([ 1.12894, 0, 0, 0, 0.135192, 0])
+    X_i = np.array([1.1762, 0, 0, 0, -0.1231, 0])
+    t_f_guess = 3.3981
+    
+    free_vars = ["x", "z", "ydot", "t"]
+    constraints = ["y", "xdot", "zdot"]
+    
+    continuation_var = []
+    
+    # Generate L2 Lyapunov orbit family
+    step = 5e-3
+    event_impact_moon = lambda t, X: event_impact_secondary(t, X, mu, R_moon)
+    
+    orbit_family_states, orbit_family_periods, flag = continue_family_palc(X_i, mu, t_f_guess, free_vars, 
+                                                                     constraints, step, N_orbits_max=300, half_period = 1,
+                                                                     event_stop = event_impact_moon)
+    
+    
+    if flag == 1:
+        plot_family(orbit_family_states, orbit_family_periods, mu, spacing = 50, frame = 'sec-centric', 
+                    R_sec = R_moon, r_sec = r_moon)
         
+        # Plot Broucke diagram
+        fig_broucke = plot_broucke_diagram(orbit_family_states, orbit_family_periods, mu)
+        
+        # Detect bifurcations
+        bif_types = ['tangent']
+        bif_states, bif_periods, bif_cont_states, bif_cont_periods, bif_types = detect_bifurcations_broucke(orbit_family_states, orbit_family_periods, mu,
+                                                                                                            free_vars, constraints, bif_types = bif_types, bif_dir_step = 1e-5)
+        
+        # Continue L2 halo orbit family
+        X_i = bif_cont_states[0]
+        t_f_guess = bif_cont_periods[0]
+        step = -5e-4
+        event_impact_enceladus = lambda t, X: event_impact_secondary(t, X, mu, R_enc)
+        
+        orbit_family_states_1, orbit_family_periods_1, flag = continue_family_palc(X_i, mu, t_f_guess, free_vars, 
+                                                                          constraints, step, N_orbits_max=2400, half_period = 1)
+        
+        if flag == 1:
+            plot_family(orbit_family_states_1, orbit_family_periods_1, mu, spacing = 50, frame = 'sec-centric', 
+                        R_sec = R_moon, r_sec = r_moon)
+            
+            # Plot Broucke diagram
+            fig_broucke = plot_broucke_diagram(orbit_family_states_1, orbit_family_periods_1, mu)
+            
+            # Detect bifurcations
+            bif_types = ['period_doubling']
+            bif_states_1, bif_periods_1, bif_cont_states_1, bif_cont_periods_1, bif_types = detect_bifurcations_broucke(orbit_family_states_1, orbit_family_periods_1, mu,
+                                                                                                                free_vars, constraints, bif_types = bif_types, bif_dir_step = 1e-4)
+               
+        
+            # Continue butterfly orbit family (fourth period-doubling bifurcation)
+            X_i = bif_cont_states_1[3]
+            t_f_guess = bif_cont_periods_1[3]
+            step = -5e-4
+            event_impact_enceladus = lambda t, X: event_impact_secondary(t, X, mu, R_enc)
+            
+            orbit_family_states_2, orbit_family_periods_2, flag = continue_family_palc(X_i, mu, t_f_guess, free_vars, 
+                                                                              constraints, step, N_orbits_max=1200, half_period = 1)
+            
+            
+            if flag == 1:
+                plot_family(orbit_family_states_2, orbit_family_periods_2, mu, spacing = 50, frame = 'sec-centric', 
+                            R_sec = R_moon, r_sec = r_moon)
             
             
             
