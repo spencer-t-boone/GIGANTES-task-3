@@ -9,6 +9,6 @@ This folder contains several packages written as part of the software prototype 
 
 These packages are found in the various subfolders in this codebase. These are organized according to their implementation in the following folders:
 
-* family_continuation_prototype: This folder contains the scripts for Package 1A. These scripts are written in Python and are independent of any software package, requiring only the standard Python NumPy and SciPy libraries.
-* sempy_scripts: This folder contains the scripts for Packages 1B, 3 and 4. These scripts require the installation of SEMPy, an open-source multi-body dynamics library developed at ISAE-SUPAERO. These scripts are written in Python.
-* transition_to_ephemeris model: This folder contains the scripts for Package 2. These scripts require the installation of GODOT and MIDAS, ESA's flight dynamics and mission analysis libraries. 
+* *family_continuation_prototype*: This folder contains the scripts for Package 1A. These scripts are written in Python and are independent of any software package, requiring only the standard Python NumPy and SciPy libraries.
+* *sempy_scripts*: This folder contains the scripts for Packages 1B, 3 and 4. These scripts require the installation of SEMPy, an open-source multi-body dynamics library developed at ISAE-SUPAERO. These scripts are written in Python.
+* *transition_to_ephemeris_model*: This folder contains the scripts for Package 2. These scripts require the installation of GODOT and MIDAS, ESA's flight dynamics and mission analysis libraries. 
