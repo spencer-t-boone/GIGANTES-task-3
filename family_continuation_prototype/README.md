@@ -1,6 +1,15 @@
 # Package 1A: Generation of families of periodic orbits in the CR3BP
 This folder contains the scripts for the Package 1A prototype written as part of the software prototype for Task 3 of the GIGANTES project. The objective of package 1A is the generation of families of periodic orbits in the circular restricted three-body problem (CR3BP). 
 
+This package contains a number of functionalities including:
+* Propagation in the circular restricted three-body problem (CR3BP)
+* Single shooting method to correct an initial guess into a periodic orbit
+* Two methods to continue families of periodic orbits:
+** Natural parameter continuation
+** Pseudo-arclength continuation
+* A method to detect bifurcations from a family, and continue the new resulting family
+* Interpolation method to generate orbits with specific parameters within a family of periodic orbits
+
 
 ## Installation and requirements
 
@@ -19,3 +28,5 @@ This prototype requires the installation of Python, version 3.6 or newer is reco
 To run the software, the user will require the following Python modules: NumPy, SciPy, copy, Matplotlib.
 
 ## Usage and test cases
+
+The script *test_script_saturn_enceladus.py* contains a number of validation cases and additional test cases that can be used to test the functionalities of this package.
