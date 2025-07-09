@@ -1,5 +1,4 @@
-# SEMPy scripts
-# Packages 1B, 3 and 4
+# SEMPy scripts (Packages 1B, 3 and 4)
 This folder contains the scripts that depend on SEMpy, ISAE-SUPAERO's open source library dedicated to astrodynamics calculations in non-Keplerian environments (see https://gitlab.isae-supaero.fr/sempy). 
 
 These scripts include:
@@ -19,21 +18,11 @@ Initial conditions for the science orbits were generated using Package 1A. Each 
 ## Installation and requirements
 
 To work with these Packages, one must first install the SEMpy environment. While a public version of SEMpy is available on the public GitLab repository, a newer (currently unreleased) version is required to run 
-the scripts in this folder.
-
-, one can simply clone the repository in the local machine:
-
-```bash
-git clone "https://github.com/spencer-t-boone/GIGANTES-task-3"
-```
-
-Package 1A is found in the *family_continuation_prototype* folder.
+the scripts in this folder. To access this version, please contact Thibault Gateau (Thibault.GATEAU@isae-supaero.fr) to gain access to the private repository, and contact Thibault Gateau or Spencer Boone (spencer.boone@isae-supaero.fr) for installation instructions. Note that the branch should be switched to 'gigantes'.
 
 Only invited developers can contribute to the folder, and each should create a separate branch or fork, otherwise push requests will not be accepted on main branch modifications. This work is under [European Space Agency Public License (ESA-PL) Permissive (Type 3) - v2.4 licence](https://essr.esa.int/license/european-space-agency-public-license-v2-4-permissive-type-3). See [LICENSE](https://github.com/MacPau/FLYbyENCELADUS/blob/main/LICENSE.txt)) file for details.
 
 This prototype requires the installation of Python, version 3.6 or newer is recommended.
-
-To run the software, the user will require the following Python modules: NumPy, SciPy, copy, Matplotlib.
 
 ## Usage and test cases
 
