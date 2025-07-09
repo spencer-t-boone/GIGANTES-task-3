@@ -191,7 +191,7 @@ The value obtained for the $L_2$ halo insertion at apoapsis is thus found to be 
 
 ## References
 
-[Ref. 1] Parihar, T., Hussmann, H., Wickhusen, K., Oberst, J., Stark, A., Caritá, G., Benidikter, A., Matar, J., Filho, E. S. R., and Galas, R., “Numerical analysis of polar orbits for future Enceladus missions,” EGU General Assembly 2024, 2024.
-[Ref. 2] Russell, R. P., and Lara, M., “On the design of an Enceladus science orbit,” Acta Astronautica, Vol. 65, No. 1, 2009, pp. 27–39.
-[Ref. 3] Lara, M., Palacian, J., and Russell, R., “Mission design through averaging of perturbed Keplerian systems: the paradigm of an Enceladus orbiter,” Celestial Mechanics and Dynamical Astronomy, Vol. 108, 2010, pp. 1–22.
-[Ref. 4] MacKenzie, S., Neveu, M., Davila, A., Lunine, J., Craft, K., Cable, M., Phillips-Lander, C., Hofgartner, J., Eigenbrode, J., Waite, J., Glein, C., Gold, R., Greenauer, P., Kirby, K., Bradburne, C., Kounaves, S., Malaska, M., Postberg, F., Patterson, G., and Spilker, L., “The Enceladus Orbilander Mission Concept: Balancing Return and Resources in the Search fo Life,” The Planetary Science Journal, Vol. 2, 2021, p. 77.
+* [Ref. 1] Parihar, T., Hussmann, H., Wickhusen, K., Oberst, J., Stark, A., Caritá, G., Benidikter, A., Matar, J., Filho, E. S. R., and Galas, R., “Numerical analysis of polar orbits for future Enceladus missions,” EGU General Assembly 2024, 2024.
+* [Ref. 2] Russell, R. P., and Lara, M., “On the design of an Enceladus science orbit,” Acta Astronautica, Vol. 65, No. 1, 2009, pp. 27–39.
+* [Ref. 3] Lara, M., Palacian, J., and Russell, R., “Mission design through averaging of perturbed Keplerian systems: the paradigm of an Enceladus orbiter,” Celestial Mechanics and Dynamical Astronomy, Vol. 108, 2010, pp. 1–22.
+* [Ref. 4] MacKenzie, S., Neveu, M., Davila, A., Lunine, J., Craft, K., Cable, M., Phillips-Lander, C., Hofgartner, J., Eigenbrode, J., Waite, J., Glein, C., Gold, R., Greenauer, P., Kirby, K., Bradburne, C., Kounaves, S., Malaska, M., Postberg, F., Patterson, G., and Spilker, L., “The Enceladus Orbilander Mission Concept: Balancing Return and Resources in the Search fo Life,” The Planetary Science Journal, Vol. 2, 2021, p. 77.
