@@ -3,7 +3,7 @@ This folder contains several packages written as part of the software prototype 
 
 * **Package 1A**: Generation of families of periodic orbits in the CR3BP
 * **Package 1B**: Global analysis of initial conditions for low-altitude elliptical orbits
-* **Package 2**: Refinement of periodic orbits in ephemeris model
+* **Package 2**: Refinement of periodic orbits in ephemeris model (not included in software prototype)
 * **Package 3**: Preliminary navigation analysis
 * **Package 4**: Connecting science orbits with end-game conditions
 
@@ -11,4 +11,3 @@ These packages are found in the various subfolders in this codebase. These are o
 
 * *family_continuation_prototype*: This folder contains the scripts for Package 1A. These scripts are written in Python and are independent of any software package, requiring only the standard Python NumPy and SciPy libraries.
 * *sempy_scripts*: This folder contains the scripts for Packages 1B, 3 and 4. These scripts require the installation of SEMPy, an open-source multi-body dynamics library developed at ISAE-SUPAERO. These scripts are written in Python.
-* *transition_to_ephemeris_model*: This folder contains the scripts for Package 2. These scripts require the installation of GODOT and MIDAS, ESA's flight dynamics and mission analysis libraries. 
