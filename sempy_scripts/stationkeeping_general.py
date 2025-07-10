@@ -19,10 +19,21 @@ from scipy.optimize import minimize, NonlinearConstraint, Bounds, approx_fprime
 from astro_functions import X2oe, oe2X
 
 
+# -----------------------------------------------------------------------------
+# INPUT PARAMETERS
+# -----------------------------------------------------------------------------
 # Select orbit type to perform analysis
 orbit_type_options = ['L2 NRHO', 'L1 NRHO', 'butterfly', 'period-3 halo']
-orbit_type = orbit_type_options[2]
+orbit_type = orbit_type_options[3]
 
+# Select error model
+error_model_options = ['nominal', 'high', 'none']
+error_model = error_model_options[0]
+
+
+# -----------------------------------------------------------------------------
+# MAIN SCRIPT
+# -----------------------------------------------------------------------------
 # Import selected orbit and set up scenario parameters
 # L2 NRHO
 if orbit_type == 'L2 NRHO':
@@ -33,12 +44,12 @@ if orbit_type == 'L2 NRHO':
     noise_freq = 2
     N_rev = 100
     
-        
-
+    
+    
 # L1 NRHO
 elif orbit_type == 'L1 NRHO':
     X_i = np.array([ 0.9974105021225586,  0,  0.004875390378705563, 0, 0.00546419495753333,  0]) # apoapse
-    tau = 2.282108846114326
+    tau = 2.282109#884612#14326
     
     num_ref_points = 2 
     noise_freq = 2
@@ -168,8 +179,7 @@ sigma_nav_error_high = np.array([nav_error_pos_high, nav_error_pos_high, nav_err
                                 nav_error_vel_high, nav_error_vel_high, nav_error_vel_high])
 
 
-# Select error model to use
-error_model = 'nominal'
+# Define error model to use
 if error_model == 'high':
     sigma_nav_error = sigma_nav_error_high
     sigma_man_error = 0.02 # Maneuver execution error
@@ -288,19 +298,36 @@ for N in range(N_man):
     
         
         
-# Plot resulting trajectory        
-fig2 = plt.figure()
-ax3 = fig2.add_subplot(projection='3d')
-ax3.set_xlabel('x [km]')
-ax3.set_ylabel('y [km]')
-ax3.set_zlabel('z [km]')
+# Plot resulting trajectory   
+# Function to plot sphere
+def plot_sphere(x_cen, y_cen, z_cen, R, fig, color = 'grey'):
+    ax = fig.gca()
+    u, v = np.mgrid[0:2*np.pi:20j, 0:np.pi:10j]
+    x = np.cos(u)*np.sin(v)
+    y = np.sin(u)*np.sin(v)
+    z = np.cos(v)
+    ax.plot_surface(x*R + x_cen, y*R + y_cen, z*R + z_cen, color=color, alpha = 0.5)   
+          
 
-ax3.plot((X_traj_full[:,0] - (1-env.mu))*env.adim_l, X_traj_full[:,1]*env.adim_l, X_traj_full[:,2]*env.adim_l,
-          label = 'Trajectory', linewidth = 1.25)        
+# Propagate orbit and save state
+X_trajectory_km = copy.deepcopy(X_traj_full[:,:3])
+X_trajectory_km[:,0] += (env.mu - 1)
+X_trajectory_km *= env.adim_l
+
+fig = plt.figure()
+ax = fig.add_subplot(projection='3d')
+    
+plot_sphere(0, 0, 0, Enceladus.Rm, fig, color = 'teal')
+
+ax.scatter(0, 0, 0, s=10,c='teal', marker='o')
+ax.set_xlabel('$x$ [km]')
+ax.set_ylabel('$y$ [km]')
+ax.set_zlabel('$z$ [km]')
+plt.axis('Equal')
+plt.grid()
+plt.show()
+ax.plot(X_trajectory_km[:,0], X_trajectory_km[:,1], X_trajectory_km[:,2], color = 'blue')
         
-        
-
-
 
 
 # Conservative navigation error estimates

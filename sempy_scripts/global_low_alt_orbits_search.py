@@ -21,13 +21,35 @@ import matplotlib.pyplot as plt
 import copy
 from mpl_toolkits.mplot3d import Axes3D
 
-
 # Set up SEMPy 
 Saturn = Primary.SATURN_NO_MOONS
 Enceladus = Primary.ENCELADUS
 env = CR3BP(Saturn, Enceladus)
 
+# -----------------------------------------------------------------------------
+# INPUT PARAMETERS
+# -----------------------------------------------------------------------------
+# Set up simulation parameters
+# Max integration time (in non-dim)
+tau_days = 150 # days
+tau = tau_days/env.adim_t*3600*24
 
+
+# Ranges of orbital elements
+# Vary radius of periapse, radius of apoapse, inclination, or RAAN
+r_p_range = np.linspace(20+252.1,100+252.1,9)
+r_a_range = np.linspace(50+252.1,200+252.1,16)
+i_range = 65.0 # Currently script runs for fixed inclination value
+raan_range = np.linspace(0,360,9)
+arg_p_range = np.linspace(0,360,16)
+
+# Note: the script currently will varry radius of periapse, radius of apoapse, RAAN
+# and argument of periapse. One could also set up the script to vary inclination as well.
+
+
+# -----------------------------------------------------------------------------
+# MAIN SCRIPT
+# -----------------------------------------------------------------------------
 # Create Propagator
 prop = Propagator(method='DOP853')
 
@@ -146,24 +168,6 @@ def km2nd(X, env):
 
 
 
-# Set up simulation parameters
-# Max integration time (in non-dim)
-tau_days = 50 # days
-tau = tau_days/env.adim_t*3600*24
-
-
-# Ranges of orbital elements
-# Vary radius of periapse, radius of apoapse, inclination, or RAAN
-r_p_range = np.linspace(20+252.1,100+252.1,17)
-r_a_range = np.linspace(50+252.1,200+252.1,16)
-i_range = 90.0 # Currently script runs for fixed inclination value
-raan_range = np.linspace(0,360,13)
-arg_p_range = np.linspace(0,360,13)
-
-# Note: the script currently will varry radius of periapse, radius of apoapse
-# and RAAN. One could also set up the script to vary inclination and argument 
-# of periapse as well.
-
 
 # Event function to trigger in case of impact with surface of Enceladus
 def event_impact(t,X):
@@ -223,9 +227,9 @@ for i in range(r_p_range.size):
                 init_a = (r_p + r_a)/2 
                 init_e = 1 - np.min([r_p,r_a])/init_a
                 
-                init_oe = np.array([init_a, init_e, init_i/180*np.pi, init_raan, init_arg_p/180*np.pi, np.pi])
+                init_oe = np.array([init_a, init_e, init_i/180*np.pi, init_raan/180*np.pi, init_arg_p/180*np.pi, np.pi])
                 
-                # Convert orbital elements to non-dimensional CR3BP state vector
+                # Convert git pushorbital elements to non-dimensional CR3BP state vector
                 init_cond_km = oe2X(init_oe, Enceladus.GM)
                 init_cond_new = km2nd(init_cond_km, env)
                 
@@ -254,7 +258,7 @@ for i in range(r_p_range.size):
                 
                 
                 # Plot orbits and characteristics for select interesting orbits
-                if t_end > 45:
+                if t_end > tau+1:
                     fig2 = plt.figure()
                     ax3 = fig2.add_subplot(projection='3d')
                     ax3.set_xlabel('x [km]')

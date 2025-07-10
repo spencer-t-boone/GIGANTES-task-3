@@ -18,6 +18,10 @@ import labellines
 
 from astro_functions import *
 
+
+# -----------------------------------------------------------------------------
+# INPUT PARAMETERS
+# -----------------------------------------------------------------------------
 # Select orbit type to perform analysis
 orbit_type_options = ['L2 NRHO', 'L1 NRHO', 'butterfly', 'period-3 halo']
 orbit_type = orbit_type_options[0]
@@ -25,9 +29,12 @@ orbit_type = orbit_type_options[0]
 # Selection location for maneuver 
 # Options for nrho and period-3 halo maneuver locations: 'periapse', 'apoapse'
 # Options for butterfly maneuver locations: 'apoapse L2', 'apoapose L1'
-maneuver_location = 'periapse'
+maneuver_location = 'apoapse'
 
 
+# -----------------------------------------------------------------------------
+# MAIN SCRIPT
+# -----------------------------------------------------------------------------
 # Set up SEMPy environment
 Saturn = Primary.SATURN_NO_MOONS
 Enceladus = Primary.ENCELADUS
@@ -361,8 +368,8 @@ delta_v_tot_min = np.min([delta_v_tot_apo[delta_v_tot_apo>0], delta_v_tot_peri[d
 
 # Plot total transfer delta-V as a function of the insertion maneuver delta-V  
 plt.figure()
-plt.plot(delta_v_mags*env.adim_v, delta_v_tot_peri, label = 'Total Delta V (lower apoapse)')
-plt.plot(delta_v_mags*env.adim_v, delta_v_tot_apo, label = 'Total Delta V (raise periapse)')
+plt.plot(delta_v_mags*env.adim_v, delta_v_tot_peri, label = 'Total Delta V (modify $r_a$)')
+plt.plot(delta_v_mags*env.adim_v, delta_v_tot_apo, label = 'Total Delta V (modify $r_p$)')
 plt.legend()
 plt.grid()
 
