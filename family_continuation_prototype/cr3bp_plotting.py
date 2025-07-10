@@ -34,7 +34,7 @@ def plot_orbit(X_i, t, mu, fig = None, N_points = 1000, orbit_color = 'blue'):
     
     
 # Plot orbit
-def plot_orbit_km(X_i, t, mu, R_sec, r_sec, fig = None, N_points = 1000, orbit_color = 'blue'):
+def plot_orbit_km(X_i, t, mu, R_sec, r_sec, fig = None, N_points = 1000, orbit_color = 'blue', moon_color = 'teal'):
     
     # Propagate orbit and save state
     t_eval = np.linspace(0, t, N_points)
@@ -50,7 +50,7 @@ def plot_orbit_km(X_i, t, mu, R_sec, r_sec, fig = None, N_points = 1000, orbit_c
     else:
         ax = fig.gca()
         
-    plot_sphere(0, 0, 0, R_sec, fig, color = 'teal')
+    plot_sphere(0, 0, 0, R_sec, fig, color = moon_color)
     
     ax.scatter(0, 0, 0, s=10,c='teal', marker='o')
     ax.set_xlabel('$x$ [km]')
@@ -66,7 +66,7 @@ def plot_orbit_km(X_i, t, mu, R_sec, r_sec, fig = None, N_points = 1000, orbit_c
 
 # Plot a family of orbits
 def plot_family(states_family, periods_family, mu, fig = None, N_points = 1000, spacing = 1, frame = 'synodic', R_sec = 252.1, r_sec = 238400,
-                variable_mu = 0):
+                variable_mu = 0, moon_color = 'teal'):
     
     if variable_mu == 1:
         mu_vector = deepcopy(mu)
@@ -86,7 +86,8 @@ def plot_family(states_family, periods_family, mu, fig = None, N_points = 1000, 
         if frame == 'synodic':
             plot_orbit(states_family[i,:], periods_family[i], mu, fig, N_points, orbit_color = colormap(i/len(periods_family)) )
         elif frame == 'sec-centric':
-            plot_orbit_km(states_family[i,:], periods_family[i], mu, R_sec, r_sec, fig, N_points, orbit_color = colormap(i/len(periods_family)))
+            plot_orbit_km(states_family[i,:], periods_family[i], mu, R_sec, r_sec, fig, N_points, orbit_color = colormap(i/len(periods_family)),
+                          moon_color = moon_color)
         
         
 # Plot sphere
@@ -96,4 +97,4 @@ def plot_sphere(x_cen, y_cen, z_cen, R, fig, color = 'grey'):
     x = np.cos(u)*np.sin(v)
     y = np.sin(u)*np.sin(v)
     z = np.cos(v)
-    ax.plot_surface(x*R + x_cen, y*R + y_cen, z*R + z_cen, color=color, alpha = 0.1)    
+    ax.plot_surface(x*R + x_cen, y*R + y_cen, z*R + z_cen, color=color, alpha = 0.5)    

@@ -140,7 +140,7 @@ def detect_bifurcations_broucke(orbit_family_states, orbit_family_periods, mu, f
 
 
 # Plot Broucke diagram
-def plot_broucke_diagram(orbit_family_states, orbit_family_periods, mu):
+def plot_broucke_diagram(orbit_family_states, orbit_family_periods, mu, empty = False):
     
     # Generate Broucke parameters for each state vector in states
     states_size = orbit_family_states.shape[0]  
@@ -160,9 +160,10 @@ def plot_broucke_diagram(orbit_family_states, orbit_family_periods, mu):
         
     # Plot Broucke diagram
     fig_broucke = plt.figure()
-    plt.plot(alpha_vec,beta_vec, label = 'Family')
-    print('alpha_vec: ', alpha_vec)
-    print('beta_vec: ', beta_vec)
+    
+    if empty == False:
+        plt.plot(alpha_vec,beta_vec, label = 'Family')
+
     
     # Plot bifurcation lines
     # Plot tangent bifurcation line
@@ -180,12 +181,13 @@ def plot_broucke_diagram(orbit_family_states, orbit_family_periods, mu):
     
     # Plot period quadrupling bifurcation line
     betas_period_quadrupling = (np.ones(alphas.size))*2
-    plt.plot(alphas,betas_period_quadrupling,'--',label = 'Period quadrupling')
+    #plt.plot(alphas,betas_period_quadrupling,'--',label = 'Period quadrupling')
     
     plt.legend()
     
     plt.xlabel(r'$\alpha$')
     plt.ylabel(r'$\beta$')
+    plt.grid()
     
     return fig_broucke
     
